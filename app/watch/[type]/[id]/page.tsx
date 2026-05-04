@@ -40,8 +40,8 @@ export default async function WatchPage({ params }: PageProps) {
   }
 
   const title = details.title || details.name || '';
-  const backdrop = getBackdropUrl(details.backdrop_path, 'w1280');
-  const poster = getPosterUrl(details.poster_path, 'w342');
+  const backdrop = getBackdropUrl(details.backdrop_path || null, 'w1280');
+  const poster = getPosterUrl(details.poster_path || null, 'w342');
   const year = getYear(details.release_date || details.first_air_date);
   const rating = getRating(details.vote_average || 0);
   const cast = details.credits?.cast?.slice(0, 10) || [];
@@ -70,7 +70,7 @@ export default async function WatchPage({ params }: PageProps) {
         </div>
 
         {/* ── Player ── */}
-        <SaveToHistory movie={{ ...details, media_type: mediaType }} />
+        <SaveToHistory movie={{ ...details, id: tmdbId, media_type: mediaType } as any} />
         <VideoPlayer tmdbId={tmdbId} mediaType={mediaType} seasons={seasons} />
 
         {/* ── Movie Info ── */}
