@@ -5,7 +5,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "mock_key_for_ssr",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   databaseURL: 'https://netflixpro-e14d5-default-rtdb.firebaseio.com',
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
