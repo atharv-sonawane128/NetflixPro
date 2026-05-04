@@ -96,6 +96,9 @@ export const tmdb = {
   getTVDetails: (id: number) =>
     fetchTMDB(`/tv/${id}`, { append_to_response: 'videos,credits,similar' }),
 
+  getTVSeason: (tvId: number, seasonNumber: number) =>
+    fetchTMDB(`/tv/${tvId}/season/${seasonNumber}`),
+
   searchMulti: (query: string, page = 1) =>
     fetchTMDB('/search/multi', { query, page: String(page) }),
 

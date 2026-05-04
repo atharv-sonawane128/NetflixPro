@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     description: 'Your premium movie streaming platform',
     type: 'website',
   },
+  icons: {
+    icon: '/image.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

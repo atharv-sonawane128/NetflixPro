@@ -14,11 +14,12 @@ interface MovieDetailModal {
     genres?: { id: number; name: string }[];
     runtime?: number;
     number_of_seasons?: number;
+    seasons?: { id: number; name: string; season_number: number; episode_count: number }[];
   };
   mediaType: 'movie' | 'tv';
 }
 
-export default function MovieCard({ movie, mediaType = 'movie' }: { movie: Movie; mediaType?: 'movie' | 'tv' }) {
+export default function MovieCard({ movie, mediaType = 'movie', showProgress = false }: { movie: Movie; mediaType?: 'movie' | 'tv'; showProgress?: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [modal, setModal] = useState<MovieDetailModal | null>(null);
   const { isInList, addToList, removeFromList } = useWatchlist();
@@ -29,6 +30,7 @@ export default function MovieCard({ movie, mediaType = 'movie' }: { movie: Movie
   const year = getYear(movie.release_date || movie.first_air_date);
   const rating = getRating(movie.vote_average);
   const poster = getPosterUrl(movie.poster_path, 'w342');
+  const progressPercent = showProgress ? (movie.id % 60) + 20 : 0;
 
   async function openModal() {
     try {
@@ -78,6 +80,11 @@ export default function MovieCard({ movie, mediaType = 'movie' }: { movie: Movie
               <span>{rating}</span>
             </div>
           </div>
+          {showProgress && (
+            <div className="card-progress-bar">
+              <div className="card-progress-fill" style={{ width: `${progressPercent}%` }} />
+            </div>
+          )}
         </div>
         <div className="card-info">
           <h3 className="card-title">{title}</h3>
@@ -106,11 +113,27 @@ function MovieModal({ data, onClose }: { data: MovieDetailModal; onClose: () => 
   const trailer = movie.videos?.results.find((v) => v.type === 'Trailer' && v.site === 'YouTube');
   const cast = movie.credits?.cast.slice(0, 8) || [];
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [selectedSeason, setSelectedSeason] = useState(
+    movie.seasons ? movie.seasons.find(s => s.season_number > 0)?.season_number || 1 : 1
+  );
+  const [episodes, setEpisodes] = useState<any[]>([]);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [visibleEpisodesCount, setVisibleEpisodesCount] = useState(10);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  useEffect(() => {
+    if (mediaType === 'tv' && movie.seasons && movie.seasons.length > 0) {
+      setLoadingEpisodes(true);
+      tmdb.getTVSeason(movie.id, selectedSeason).then(data => {
+        setEpisodes(data.episodes || []);
+        setLoadingEpisodes(false);
+      }).catch(() => setLoadingEpisodes(false));
+    }
+  }, [selectedSeason, mediaType, movie.id, movie.seasons]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === overlayRef.current) onClose();
@@ -200,6 +223,65 @@ function MovieModal({ data, onClose }: { data: MovieDetailModal; onClose: () => 
                     <span className="cast-name">{member.name}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Episodes Section for TV Shows */}
+          {mediaType === 'tv' && movie.seasons && movie.seasons.length > 0 && (
+            <div className="modal-episodes-section">
+              <div className="episodes-header">
+                <h3>Episodes</h3>
+                <select 
+                  className="season-selector"
+                  value={selectedSeason}
+                  onChange={(e) => {
+                    setSelectedSeason(Number(e.target.value));
+                    setVisibleEpisodesCount(10);
+                  }}
+                >
+                  {movie.seasons.filter(s => s.season_number > 0).map(s => (
+                    <option key={s.id} value={s.season_number}>
+                      Season {s.season_number}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="episodes-list">
+                {loadingEpisodes ? (
+                  <div className="episodes-loading"><div className="spinner-sm" /></div>
+                ) : (
+                  <>
+                    {episodes.slice(0, visibleEpisodesCount).map(ep => (
+                      <div key={ep.id} className="episode-item">
+                        <div className="episode-number">{ep.episode_number}</div>
+                        <div className="episode-img-wrap">
+                          {ep.still_path ? (
+                            <Image src={getPosterUrl(ep.still_path, 'w342')} alt={ep.name} fill className="episode-img" />
+                          ) : (
+                            <div className="episode-img-placeholder" />
+                          )}
+                        </div>
+                        <div className="episode-details">
+                          <div className="episode-title-row">
+                            <span className="episode-title">{ep.name}</span>
+                            {ep.runtime && <span className="episode-runtime">{ep.runtime}m</span>}
+                          </div>
+                          <p className="episode-overview">{ep.overview}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {episodes.length > visibleEpisodesCount && (
+                      <button 
+                        className="btn-load-more" 
+                        onClick={() => setVisibleEpisodesCount(prev => prev + 10)}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           )}

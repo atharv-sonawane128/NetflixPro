@@ -15,7 +15,7 @@ export default function ContinueWatchingRow() {
       <div className="movie-row-scroll">
         {history.map((movie) => (
           <div key={`history-${movie.id}`} className="movie-row-item">
-            <MovieCard movie={movie} mediaType={movie.media_type as 'movie' | 'tv' || 'movie'} />
+            <MovieCard movie={movie} mediaType={movie.media_type as 'movie' | 'tv' || 'movie'} showProgress={true} />
           </div>
         ))}
       </div>
