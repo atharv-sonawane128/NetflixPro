@@ -23,18 +23,22 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthGate from '@/components/AuthGate';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
         <AuthProvider>
-          <WatchlistProvider>
-            <HistoryProvider>
-              <Navbar />
-              <main className="main-content">{children}</main>
-              <BottomNav />
-            </HistoryProvider>
-          </WatchlistProvider>
+          <AuthGate>
+            <WatchlistProvider>
+              <HistoryProvider>
+                <Navbar />
+                <main className="main-content">{children}</main>
+                <BottomNav />
+              </HistoryProvider>
+            </WatchlistProvider>
+          </AuthGate>
         </AuthProvider>
       </body>
     </html>

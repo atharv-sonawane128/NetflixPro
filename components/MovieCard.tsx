@@ -44,7 +44,7 @@ export default function MovieCard({ movie, mediaType = 'movie', showProgress = f
 
   function handleWatchlist(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!user) { router.push('/auth'); return; }
+    if (!user) { router.push('/'); return; }
     inList ? removeFromList(movie.id) : addToList(movie);
   }
 
@@ -140,7 +140,7 @@ function MovieModal({ data, onClose }: { data: MovieDetailModal; onClose: () => 
   }, [onClose]);
 
   function handleWatchlist() {
-    if (!user) { router.push('/auth'); onClose(); return; }
+    if (!user) { router.push('/'); onClose(); return; }
     inList ? removeFromList(movie.id) : addToList(movie as Movie);
   }
 

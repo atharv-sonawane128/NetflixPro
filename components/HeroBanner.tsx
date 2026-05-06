@@ -53,7 +53,7 @@ export default function HeroBanner({ slides }: { slides: HeroSlide[] }) {
 
   function handleWatchlist(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!user) { router.push('/auth'); return; }
+    if (!user) { router.push('/'); return; }
     inList ? removeFromList(movie!.id) : addToList(movie!);
   }
 

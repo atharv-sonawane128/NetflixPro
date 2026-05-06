@@ -60,7 +60,7 @@ export default function Navbar() {
 
   async function handleLogout() {
     await logout();
-    router.push('/auth');
+    router.push('/');
   }
 
   const initials = user?.displayName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || user?.email?.[0]?.toUpperCase() || 'U';
@@ -140,7 +140,7 @@ export default function Navbar() {
             </button>
 
             {/* User */}
-            {user ? (
+            {user && (
               <div className="user-menu-wrap">
                 <button className="user-avatar" onClick={() => setProfileOpen(!profileOpen)} aria-label="Profile">
                   {user.photoURL
@@ -174,8 +174,6 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            ) : (
-              <Link href="/auth" className="btn-signin-nav">Sign In</Link>
             )}
 
             {/* Hamburger */}
@@ -205,10 +203,8 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-          {user ? (
+          {user && (
             <button className="mobile-logout-btn" onClick={() => { handleLogout(); setMobileOpen(false); }}>Sign Out</button>
-          ) : (
-            <Link href="/auth" className="mobile-signin-btn" onClick={() => setMobileOpen(false)}>Sign In</Link>
           )}
         </div>
       </div>

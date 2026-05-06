@@ -12,7 +12,7 @@ export default function MyListPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) router.push('/auth');
+    if (!loading && !user) router.push('/');
   }, [user, loading, router]);
 
   if (loading) {

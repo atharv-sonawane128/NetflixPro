@@ -11,15 +11,33 @@ async function fetchTMDB(endpoint: string, params: Record<string, string> = {}) 
   if (!API_KEY) {
     throw new Error('TMDB API key is missing. Add TMDB_API_KEY to .env.local and restart the server.');
   }
+  
   const url = new URL(`${BASE_URL}${endpoint}`);
-  url.searchParams.set('api_key', API_KEY);
+  url.searchParams.set('api_key', API_KEY.trim()); // Trim to avoid whitespace issues
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString(), {
-    next: { revalidate: 3600 },
-    headers: { Accept: 'application/json' },
-  });
-  if (!res.ok) throw new Error(`TMDB fetch failed: ${res.status} on ${endpoint}`);
-  return res.json();
+  
+  const fullUrl = url.toString();
+  
+  try {
+    const res = await fetch(fullUrl, {
+      next: { revalidate: 3600 },
+      headers: { Accept: 'application/json' },
+    });
+    
+    if (!res.ok) {
+      console.error(`TMDB Error Response: ${res.status} ${res.statusText} for ${fullUrl}`);
+      throw new Error(`TMDB fetch failed: ${res.status} on ${endpoint}`);
+    }
+    
+    return res.json();
+  } catch (err: any) {
+    console.error('TMDB Network/Fetch Error:', {
+      message: err.message,
+      url: fullUrl,
+      cause: err.cause
+    });
+    throw err;
+  }
 }
 
 export const tmdb = {
